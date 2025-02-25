@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Assuming you have Bootstrap installed
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import './PaycheckForm.css'; // Import the CSS file for additional styles
+import './paycheckForm.css'; // Import the CSS file for additional styles
 
 export default function PaycheckForm() {
   const [jobType, setJobType] = useState('TelCom');
