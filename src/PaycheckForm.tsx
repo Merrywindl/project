@@ -299,9 +299,7 @@ export default function PaycheckForm() {
       <button type="button" onClick={clearData} className="btn btn-danger" style={{ marginTop: '20px' }}>
         Start New Week
       </button>
-      <footer style={{ marginTop: '20px', textAlign: 'center', padding: '10px 0', backgroundColor: '#f8f9fa', width: '100%' }}>
-        <p>&copy; {new Date().getFullYear()} Paycheck Calculator. All rights reserved.</p>
-      </footer>
+      
     </div>
   );
 }
