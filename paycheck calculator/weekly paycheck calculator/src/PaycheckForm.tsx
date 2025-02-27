@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Assuming you have Bootstrap installed
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import './paycheckForm.css'; // Import the CSS file for additional styles
 
 export default function PaycheckForm() {
   const [jobType, setJobType] = useState('TelCom');
@@ -11,7 +10,6 @@ export default function PaycheckForm() {
   const [handbury, setHandbury] = useState('');
   const [hours, setHours] = useState('');
   const [totalWorkingHours, setTotalWorkingHours] = useState('');
-  const [inputTotalWorkingHours, setInputTotalWorkingHours] = useState(''); // New state for input value
   const [paycheck, setPaycheck] = useState(0);
   const [commission, setCommission] = useState(0);
   const [earnings, setEarnings] = useState(0);
@@ -90,22 +88,22 @@ export default function PaycheckForm() {
 
   const calculatePaycheck = () => {
     console.log('calculatePaycheck called');
-    const hoursNum = parseFloat(hours) || 0;
+    const hoursNum = parseInt(hours) || 0;
     const regularPay = hoursNum <= 40 ? hoursNum * REGULAR_PAY_RATE : 40 * REGULAR_PAY_RATE + (hoursNum - 40) * REGULAR_PAY_RATE * OVERTIME_RATE;
     let commissionValue = 0;
     let totalFootage = 0;
 
     if (jobType === 'TelCom') {
-      const machineburyNum = parseFloat(machinebury) || 0;
-      const handburyNum = parseFloat(handbury) || 0;
+      const machineburyNum = parseInt(machinebury) || 0;
+      const handburyNum = parseInt(handbury) || 0;
       commissionValue = machineburyNum * TELCOM_MACHINEBURY_RATE + handburyNum * TELCOM_HANDBURY_RATE;
       totalFootage = machineburyNum + handburyNum;
     } else if (jobType === 'TelCom Handbury') {
-      const handburyNum = parseFloat(handbury) || 0;
+      const handburyNum = parseInt(handbury) || 0;
       commissionValue = handburyNum * TELCOM_HANDBURY_ONLY_RATE;
       totalFootage = handburyNum;
     } else if (jobType === 'Frontier') {
-      const footageNum = parseFloat(footage) || 0;
+      const footageNum = parseInt(footage) || 0;
       commissionValue = FRONTIER_BASE_RATE + ((footageNum - 250) * FRONTIER_RATE);
       totalFootage = footageNum;
     }
@@ -128,15 +126,14 @@ export default function PaycheckForm() {
   };
 
   const calculateTotalWorkingHoursPay = () => {
-    const totalWorkingHoursNum = parseFloat(inputTotalWorkingHours) || 0;
+    const totalWorkingHoursNum = parseInt(totalWorkingHours) || 0;
     const regularPay = totalWorkingHoursNum <= 40 ? totalWorkingHoursNum * REGULAR_PAY_RATE : 40 * REGULAR_PAY_RATE + (totalWorkingHoursNum - 40) * REGULAR_PAY_RATE * OVERTIME_RATE;
     setTotalWorkingHoursPay(parseFloat(regularPay.toFixed(2)));
-    setTotalWorkingHours(totalWorkingHoursNum.toFixed(2)); // Update totalWorkingHours state
-    setInputTotalWorkingHours(''); // Clear inputTotalWorkingHours state
+    setTotalWorkingHours(''); // Clear totalWorkingHours state
   };
 
   const totalActiveHours = rows.reduce((acc, row) => acc + row.hours, 0);
-  const lazyHours = (parseFloat(totalWorkingHours) || 0) - totalActiveHours;
+  const lazyHours = (parseInt(totalWorkingHours) || 0) - totalActiveHours;
   const totalCommission = rows.reduce((acc, row) => acc + row.commission, 0).toFixed(2);
   const totalEarnings = rows.reduce((acc, row) => acc + row.earnings, 0).toFixed(2);
   const totalActiveHourPay = rows.reduce((acc, row) => {
@@ -183,33 +180,35 @@ export default function PaycheckForm() {
   };
 
   return (
-    <div className="paycheck-form">
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
       <h1>Weekly Paycheck Calculator</h1>
-      <p className="bold-text">Paycheck: ${paycheck}</p>
-      <p className="bold-text">Total Commission: ${totalCommission}</p>
-      <p className="bold-text">Total Active Hour Pay: ${totalActiveHourPay}</p>
-      <p className="bold-text">Total Working Hours Pay: ${totalWorkingHoursPay}</p>
-      <p className="bold-text">Total Earnings: ${totalEarnings}</p>
-      <div className="input-group text-center bold-text">
+      <p style={{ fontWeight: 'bold', textAlign: 'center' }}>Paycheck: ${paycheck}</p>
+      <p style={{ fontWeight: 'bold', textAlign: 'center' }}>Total Commission: ${totalCommission}</p>
+      <p style={{ fontWeight: 'bold', textAlign: 'center' }}>Total Active Hour Pay: ${totalActiveHourPay}</p>
+      <p style={{ fontWeight: 'bold', textAlign: 'center' }}>Total Working Hours Pay: ${totalWorkingHoursPay}</p>
+      <p style={{ fontWeight: 'bold', textAlign: 'center' }}>Total Earnings: ${totalEarnings}</p>
+      <div style={{ display: 'flex', flexDirection: 'column', minWidth: '150px', marginBottom: '20px' }}>
         You Actually Worked: {totalWorkingHours} hours. You Got Paid to do nothing for {lazyHours} hours.
         <label htmlFor="totalWorkingHours">Total Working Hours:</label>
         <input
-          type="text"
+          type="number"
           id="totalWorkingHours"
-          value={inputTotalWorkingHours} // Use inputTotalWorkingHours for input value
-          onChange={(e) => setInputTotalWorkingHours(e.target.value)} // Update inputTotalWorkingHours on change
+          value={totalWorkingHours}
+          onChange={(e) => setTotalWorkingHours(e.target.value)}
+          style={{ width: '100%' }}
         />
-        <button type="button" onClick={calculateTotalWorkingHoursPay} className="btn btn-primary">
+        <button type="button" onClick={calculateTotalWorkingHoursPay} className="btn btn-primary" style={{ marginTop: '10px' }}>
           Calculate Total Working Hours Pay
         </button>
       </div>
-      <form className="form-group">
-        <div className="input-group">
+      <form style={{ display: 'flex', gap: '10px', alignItems: 'flex-end', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', minWidth: '150px' }}>
           <label htmlFor="jobType">Job Type:</label>
           <select
             id="jobType"
             value={jobType}
             onChange={(e) => setJobType(e.target.value)}
+            style={{ width: '100%' }}
           >
             <option value="TelCom">Telcom</option>
             <option value="Frontier">Frontier</option>
@@ -217,85 +216,92 @@ export default function PaycheckForm() {
           </select>
         </div>
         {jobType === 'TelCom' && (
-          <div className="input-group">
+          <div style={{ display: 'flex', flexDirection: 'column', minWidth: '150px' }}>
             <label htmlFor="machinebury">Machinebury:</label>
             <input
-              type="text"
+              type="number"
               id="machinebury"
               value={machinebury}
               onChange={(e) => setMachinebury(e.target.value)}
+              style={{ width: '100%' }}
             />
           </div>
         )}
         {(jobType === 'TelCom' || jobType === 'TelCom Handbury') && (
-          <div className="input-group">
+          <div style={{ display: 'flex', flexDirection: 'column', minWidth: '150px' }}>
             <label htmlFor="handbury">Handbury:</label>
             <input
-              type="text"
+              type="number"
               id="handbury"
               value={handbury}
               onChange={(e) => setHandbury(e.target.value)}
+              style={{ width: '100%' }}
             />
           </div>
         )}
         {jobType === 'Frontier' && (
-          <div className="input-group">
+          <div style={{ display: 'flex', flexDirection: 'column', minWidth: '150px' }}>
             <label htmlFor="footage">Footage:</label>
             <input
-              type="text"
+              type="number"
               id="footage"
               value={footage}
               onChange={(e) => setFootage(e.target.value)}
+              style={{ width: '100%' }}
             />
           </div>
         )}
-        <div className="input-group">
+        <div style={{ display: 'flex', flexDirection: 'column', minWidth: '150px' }}>
           <label htmlFor="hours">Hours worked:</label>
           <input
-            type="text"
+            type="number"
             id="hours"
             value={hours}
             onChange={(e) => setHours(e.target.value)}
+            style={{ width: '100%' }}
           />
         </div>
-        <div className="input-group">
-          <button type="button" onClick={calculatePaycheck} className="btn btn-primary">
+        <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+          <button type="button" onClick={calculatePaycheck} className="btn btn-primary" style={{ minWidth: '150px' }}>
             Submit
           </button>
         </div>
       </form>
-      <button type="button" onClick={exportToPDF} className="btn btn-secondary">
+      <button type="button" onClick={exportToPDF} className="btn btn-secondary" style={{ marginTop: '20px' }}>
         Export to PDF
       </button>
-      <table id="paycheck-table" className="table table-striped">
+      <table id="paycheck-table" className="table table-striped" style={{ marginTop: '20px', width: '100%' }}>
         <thead>
           <tr>
-            <th>Contract</th>
-            <th>Footage</th>
-            <th>Commission</th>
-            <th>Earnings</th>
-            <th>ActiveHours</th>
+            <th style={{ textAlign: 'center' }}>Contract</th>
+            <th style={{ textAlign: 'center' }}>Footage</th>
+            <th style={{ textAlign: 'center' }}>Commission</th>
+            <th style={{ textAlign: 'center' }}>Earnings</th>
+            <th style={{ textAlign: 'center' }}>ActiveHours</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((row, index) => (
             <tr key={index}>
-              <td>{row.jobType}</td>
-              <td>{row.footage}</td>
-              <td>{row.commission}</td>
-              <td>{row.earnings}</td>
-              <td>{row.hours}</td>
+              <td style={{ textAlign: 'center' }}>{row.jobType}</td>
+              <td style={{ textAlign: 'center' }}>{row.footage}</td>
+              <td style={{ textAlign: 'center' }}>{row.commission}</td>
+              <td style={{ textAlign: 'center' }}>{row.earnings}</td>
+              <td style={{ textAlign: 'center' }}>{row.hours}</td>
             </tr>
           ))}
           <tr>
-            <td colSpan={3} className="bold-text">Expected Paycheck</td>
-            <td colSpan={2} className="bold-text">${paycheck}</td>
+            <td colSpan={3} style={{ textAlign: 'center', fontWeight: 'bold' }}>Expected Paycheck</td>
+            <td colSpan={2} style={{ textAlign: 'center', fontWeight: 'bold' }}>${paycheck}</td>
           </tr>
         </tbody>
       </table>
-      <button type="button" onClick={clearData} className="btn btn-danger">
+      <button type="button" onClick={clearData} className="btn btn-danger" style={{ marginTop: '20px' }}>
         Start New Week
       </button>
+      <footer style={{ marginTop: '20px', textAlign: 'center', padding: '10px 0', backgroundColor: '#f8f9fa', width: '100%' }}>
+        <p>&copy; {new Date().getFullYear()} Paycheck Calculator. All rights reserved.</p>
+      </footer>
     </div>
   );
 }
