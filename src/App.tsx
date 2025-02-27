@@ -5,6 +5,7 @@ import PaycheckForm from './PaycheckForm';
 import Footer from './Footer';
 import { Route, Routes, BrowserRouter as Router } from 'react-router-dom';
 import { HourlyWageCalculator } from './pages/hourlyrate';
+import { Analytics } from '@vercel/analytics/next';
 
 const App: React.FC = () => {
   return (
@@ -18,6 +19,7 @@ const App: React.FC = () => {
           </Routes>
         </div>
         <Footer />
+        <Analytics />
       </div>
     </Router>
   );
