@@ -19,13 +19,13 @@ export default function PaycheckForm() {
   const [totalWorkingHoursPay, setTotalWorkingHoursPay] = useState(0);
   const [dataLoaded, setDataLoaded] = useState(false);
 
-  const REGULAR_PAY_RATE = 10;
+  const REGULAR_PAY_RATE = 15;
   const OVERTIME_RATE = 1.5;
-  const TELCOM_MACHINEBURY_RATE = 0.4;
+  const TELCOM_MACHINEBURY_RATE = 0.5;
   const TELCOM_HANDBURY_RATE = 0.5;
-  const TELCOM_HANDBURY_ONLY_RATE = 0.75;
-  const FRONTIER_BASE_RATE = 160;
-  const FRONTIER_RATE = 0.4;
+  const TELCOM_HANDBURY_ONLY_RATE = 0.5;
+  const FRONTIER_BASE_RATE = 80;
+  const FRONTIER_RATE = 0;
 
   useEffect(() => {
     // Load data from local storage when the component mounts
@@ -186,7 +186,7 @@ export default function PaycheckForm() {
     <div className="paycheck-form">
       <h1>Weekly Paycheck Calculator</h1>
       <p className="bold-text">Paycheck: ${paycheck}</p>
-      <p className="bold-text">Total Commission: ${totalCommission}</p>
+      <p className="bold-text">Total Production: ${totalCommission}</p>
       <p className="bold-text">Total Active Hour Pay: ${totalActiveHourPay}</p>
       <p className="bold-text">Total Working Hours Pay: ${totalWorkingHoursPay}</p>
       <p className="bold-text">Total Earnings: ${totalEarnings}</p>
@@ -272,7 +272,7 @@ export default function PaycheckForm() {
           <tr>
             <th>Contract</th>
             <th>Footage</th>
-            <th>Commission</th>
+            <th>Production Pay</th>
             <th>Earnings</th>
             <th>ActiveHours</th>
           </tr>
@@ -282,8 +282,8 @@ export default function PaycheckForm() {
             <tr key={index}>
               <td>{row.jobType}</td>
               <td>{row.footage}</td>
-              <td>{row.commission}</td>
-              <td>{row.earnings}</td>
+              <td>${row.commission}</td>
+              <td>${row.earnings}</td>
               <td>{row.hours}</td>
             </tr>
           ))}

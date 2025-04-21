@@ -1,0 +1,8 @@
+h1 {
+    display: flex;
+    justify-content: center;
+    
+    text-align: center; /* Ensures text is centered within the element */
+    height: 100vh; /* Optional: Makes the element take up the full viewport height */
+    margin: 0; /* Removes default margin */
+}

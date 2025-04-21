@@ -1,4 +1,4 @@
-
+import '../paycheckForm.css'; // Import the CSS file
 
 export function HourlyWageCalculator() {
   return (
