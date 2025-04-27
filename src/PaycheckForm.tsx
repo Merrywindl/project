@@ -106,7 +106,7 @@ export default function PaycheckForm() {
       totalFootage = handburyNum;
     } else if (jobType === 'Frontier') {
       const footageNum = parseFloat(footage) || 0;
-      commissionValue = FRONTIER_BASE_RATE + ((footageNum - 250) * FRONTIER_RATE);
+      commissionValue = FRONTIER_BASE_RATE + ((footageNum - 350) * FRONTIER_RATE);
       totalFootage = footageNum;
     }
 

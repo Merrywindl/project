@@ -7,6 +7,15 @@
   padding: 10px;
   box-sizing: border-box;
 }
+.hourly-rate-calculator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+  min-height: 100vh;
+  padding: 10px;
+  box-sizing: border-box;
+}
 
 .bold-text {
   font-weight: bold;
@@ -43,8 +52,9 @@
 }
 
 @media (max-width: 412px) {
-  .paycheck-form {
+  .paycheck-form, .hourly-rate-calculator {
     padding: 5px;
+
   }
 
   .input-group {
