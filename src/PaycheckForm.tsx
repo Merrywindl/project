@@ -9,9 +9,10 @@ export default function PaycheckForm() {
   const [footage, setFootage] = useState('');
   const [machinebury, setMachinebury] = useState('');
   const [handbury, setHandbury] = useState('');
+  const [bore, setBore] = useState('');
   const [hours, setHours] = useState('');
   const [totalWorkingHours, setTotalWorkingHours] = useState('');
-  const [inputTotalWorkingHours, setInputTotalWorkingHours] = useState(''); // New state for input value
+  const [inputTotalWorkingHours, setInputTotalWorkingHours] = useState('');
   const [paycheck, setPaycheck] = useState(0);
   const [commission, setCommission] = useState(0);
   const [earnings, setEarnings] = useState(0);
@@ -24,6 +25,7 @@ export default function PaycheckForm() {
   const TELCOM_MACHINEBURY_RATE = 0.5;
   const TELCOM_HANDBURY_RATE = 0.5;
   const TELCOM_HANDBURY_ONLY_RATE = 0.5;
+  const TELCOM_BORE_RATE = 0.5;
   const FRONTIER_BASE_RATE = 80;
   const FRONTIER_RATE = 0;
 
@@ -38,10 +40,10 @@ export default function PaycheckForm() {
     const savedFootage = localStorage.getItem('footage');
     const savedMachinebury = localStorage.getItem('machinebury');
     const savedHandbury = localStorage.getItem('handbury');
+    const savedBore = localStorage.getItem('bore');
     const savedHours = localStorage.getItem('hours');
     const savedTotalWorkingHours = localStorage.getItem('totalWorkingHours');
 
-    console.log('Loading data from localStorage');
     if (savedRows) setRows(JSON.parse(savedRows));
     if (savedPaycheck) setPaycheck(parseFloat(savedPaycheck));
     if (savedCommission) setCommission(parseFloat(savedCommission));
@@ -51,16 +53,15 @@ export default function PaycheckForm() {
     if (savedFootage) setFootage(savedFootage);
     if (savedMachinebury) setMachinebury(savedMachinebury);
     if (savedHandbury) setHandbury(savedHandbury);
+    if (savedBore) setBore(savedBore);
     if (savedHours) setHours(savedHours);
     if (savedTotalWorkingHours) setTotalWorkingHours(savedTotalWorkingHours);
 
-    setDataLoaded(true); // Set dataLoaded to true after loading data
+    setDataLoaded(true);
   }, []);
 
   useEffect(() => {
     if (dataLoaded) {
-      // Save data to local storage whenever it changes
-      console.log('Saving data to localStorage');
       localStorage.setItem('rows', JSON.stringify(rows));
       localStorage.setItem('paycheck', paycheck.toString());
       localStorage.setItem('commission', commission.toString());
@@ -70,26 +71,13 @@ export default function PaycheckForm() {
       localStorage.setItem('footage', footage);
       localStorage.setItem('machinebury', machinebury);
       localStorage.setItem('handbury', handbury);
+      localStorage.setItem('bore', bore);
       localStorage.setItem('hours', hours);
       localStorage.setItem('totalWorkingHours', totalWorkingHours);
     }
-  }, [rows, paycheck, commission, earnings, totalWorkingHoursPay, jobType, footage, machinebury, handbury, hours, totalWorkingHours, dataLoaded]);
-
-  useEffect(() => {
-    // Recalculate paycheck whenever totalCommission, totalActiveHourPay, or totalWorkingHoursPay changes
-    const totalCommission = rows.reduce((acc, row) => acc + row.commission, 0);
-    const totalActiveHourPay = rows.reduce((acc, row) => {
-      const regularPay = row.hours <= 40 ? row.hours * REGULAR_PAY_RATE : 40 * REGULAR_PAY_RATE + (row.hours - 40) * REGULAR_PAY_RATE * OVERTIME_RATE;
-      return acc + regularPay;
-    }, 0);
-    const totalEarnings = rows.reduce((acc, row) => acc + row.earnings, 0);
-    const totalPay = totalCommission + Math.max(totalActiveHourPay, totalWorkingHoursPay);
-    setPaycheck(parseFloat(totalPay.toFixed(2)));
-    setEarnings(parseFloat(totalEarnings.toFixed(2)));
-  }, [rows, totalWorkingHoursPay]);
+  }, [rows, paycheck, commission, earnings, totalWorkingHoursPay, jobType, footage, machinebury, handbury, bore, hours, totalWorkingHours, dataLoaded]);
 
   const calculatePaycheck = () => {
-    console.log('calculatePaycheck called');
     const hoursNum = parseFloat(hours) || 0;
     const regularPay = hoursNum <= 40 ? hoursNum * REGULAR_PAY_RATE : 40 * REGULAR_PAY_RATE + (hoursNum - 40) * REGULAR_PAY_RATE * OVERTIME_RATE;
     let commissionValue = 0;
@@ -98,12 +86,17 @@ export default function PaycheckForm() {
     if (jobType === 'TelCom') {
       const machineburyNum = parseFloat(machinebury) || 0;
       const handburyNum = parseFloat(handbury) || 0;
-      commissionValue = machineburyNum * TELCOM_MACHINEBURY_RATE + handburyNum * TELCOM_HANDBURY_RATE;
-      totalFootage = machineburyNum + handburyNum;
+      const boreNum = parseFloat(bore) || 0;
+      commissionValue = machineburyNum * TELCOM_MACHINEBURY_RATE +
+                        handburyNum * TELCOM_HANDBURY_RATE +
+                        boreNum * TELCOM_BORE_RATE;
+      totalFootage = machineburyNum + handburyNum + boreNum;
     } else if (jobType === 'TelCom Handbury') {
       const handburyNum = parseFloat(handbury) || 0;
-      commissionValue = handburyNum * TELCOM_HANDBURY_ONLY_RATE;
-      totalFootage = handburyNum;
+      const boreNum = parseFloat(bore) || 0;
+      commissionValue = handburyNum * TELCOM_HANDBURY_ONLY_RATE +
+                        boreNum * TELCOM_BORE_RATE;
+      totalFootage = handburyNum + boreNum;
     } else if (jobType === 'Frontier') {
       const footageNum = parseFloat(footage) || 0;
       commissionValue = FRONTIER_BASE_RATE + ((footageNum - 350) * FRONTIER_RATE);
@@ -115,14 +108,13 @@ export default function PaycheckForm() {
     setPaycheck(parseFloat(totalPay.toFixed(2)));
     setCommission(parseFloat(commissionValue.toFixed(2)));
 
-    // Append new row to the table
     setRows([...rows, { jobType, footage: totalFootage, commission: parseFloat(commissionValue.toFixed(2)), earnings: parseFloat(totalPay.toFixed(2)), hours: hoursNum }]);
 
-    // Clear input fields
     setJobType('TelCom');
     setFootage('');
     setMachinebury('');
     setHandbury('');
+    setBore('');
     setHours('');
     setTotalWorkingHours('');
   };
@@ -131,18 +123,9 @@ export default function PaycheckForm() {
     const totalWorkingHoursNum = parseFloat(inputTotalWorkingHours) || 0;
     const regularPay = totalWorkingHoursNum <= 40 ? totalWorkingHoursNum * REGULAR_PAY_RATE : 40 * REGULAR_PAY_RATE + (totalWorkingHoursNum - 40) * REGULAR_PAY_RATE * OVERTIME_RATE;
     setTotalWorkingHoursPay(parseFloat(regularPay.toFixed(2)));
-    setTotalWorkingHours(totalWorkingHoursNum.toFixed(2)); // Update totalWorkingHours state
-    setInputTotalWorkingHours(''); // Clear inputTotalWorkingHours state
+    setTotalWorkingHours(totalWorkingHoursNum.toFixed(2));
+    setInputTotalWorkingHours('');
   };
-
-  const totalActiveHours = rows.reduce((acc, row) => acc + row.hours, 0);
-  const lazyHours = (parseFloat(totalWorkingHours) || 0) - totalActiveHours;
-  const totalCommission = rows.reduce((acc, row) => acc + row.commission, 0).toFixed(2);
-  const totalEarnings = rows.reduce((acc, row) => acc + row.earnings, 0).toFixed(2);
-  const totalActiveHourPay = rows.reduce((acc, row) => {
-    const regularPay = row.hours <= 40 ? row.hours * REGULAR_PAY_RATE : 40 * REGULAR_PAY_RATE + (row.hours - 40) * REGULAR_PAY_RATE * OVERTIME_RATE;
-    return acc + regularPay;
-  }, 0).toFixed(2);
 
   const exportToPDF = () => {
     const input = document.getElementById('paycheck-table');
@@ -167,6 +150,7 @@ export default function PaycheckForm() {
     localStorage.removeItem('footage');
     localStorage.removeItem('machinebury');
     localStorage.removeItem('handbury');
+    localStorage.removeItem('bore');
     localStorage.removeItem('hours');
     localStorage.removeItem('totalWorkingHours');
     setRows([]);
@@ -178,9 +162,19 @@ export default function PaycheckForm() {
     setFootage('');
     setMachinebury('');
     setHandbury('');
+    setBore('');
     setHours('');
     setTotalWorkingHours('');
   };
+
+  const totalActiveHours = rows.reduce((acc, row) => acc + row.hours, 0);
+  const lazyHours = (parseFloat(totalWorkingHours) || 0) - totalActiveHours;
+  const totalCommission = rows.reduce((acc, row) => acc + row.commission, 0).toFixed(2);
+  const totalEarnings = rows.reduce((acc, row) => acc + row.earnings, 0).toFixed(2);
+  const totalActiveHourPay = rows.reduce((acc, row) => {
+    const regularPay = row.hours <= 40 ? row.hours * REGULAR_PAY_RATE : 40 * REGULAR_PAY_RATE + (row.hours - 40) * REGULAR_PAY_RATE * OVERTIME_RATE;
+    return acc + regularPay;
+  }, 0).toFixed(2);
 
   return (
     <div className="paycheck-form">
@@ -191,13 +185,13 @@ export default function PaycheckForm() {
       <p className="bold-text">Total Working Hours Pay: ${totalWorkingHoursPay}</p>
       <p className="bold-text">Total Earnings: ${totalEarnings}</p>
       <div className="input-group text-center bold-text">
-        You Actually Worked: {totalWorkingHours} hours. You Got Paid to do nothing for {lazyHours} hours.
+        You Actually Worked: {totalWorkingHours} hours. Congratulations you Got Paid to do nothing for {lazyHours} hours.
         <label htmlFor="totalWorkingHours">Total Working Hours:</label>
         <input
           type="text"
           id="totalWorkingHours"
-          value={inputTotalWorkingHours} // Use inputTotalWorkingHours for input value
-          onChange={(e) => setInputTotalWorkingHours(e.target.value)} // Update inputTotalWorkingHours on change
+          value={inputTotalWorkingHours}
+          onChange={(e) => setInputTotalWorkingHours(e.target.value)}
         />
         <button type="button" onClick={calculateTotalWorkingHoursPay} className="btn btn-primary">
           Calculate Total Working Hours Pay
@@ -217,26 +211,57 @@ export default function PaycheckForm() {
           </select>
         </div>
         {jobType === 'TelCom' && (
-          <div className="input-group">
-            <label htmlFor="machinebury">Machinebury:</label>
-            <input
-              type="text"
-              id="machinebury"
-              value={machinebury}
-              onChange={(e) => setMachinebury(e.target.value)}
-            />
-          </div>
+          <>
+            <div className="input-group">
+              <label htmlFor="machinebury">Machinebury:</label>
+              <input
+                type="text"
+                id="machinebury"
+                value={machinebury}
+                onChange={(e) => setMachinebury(e.target.value)}
+              />
+            </div>
+            <div className="input-group">
+              <label htmlFor="handbury">Handbury:</label>
+              <input
+                type="text"
+                id="handbury"
+                value={handbury}
+                onChange={(e) => setHandbury(e.target.value)}
+              />
+            </div>
+            <div className="input-group">
+              <label htmlFor="bore">Bore Footage:</label>
+              <input
+                type="text"
+                id="bore"
+                value={bore}
+                onChange={(e) => setBore(e.target.value)}
+              />
+            </div>
+          </>
         )}
-        {(jobType === 'TelCom' || jobType === 'TelCom Handbury') && (
-          <div className="input-group">
-            <label htmlFor="handbury">Handbury:</label>
-            <input
-              type="text"
-              id="handbury"
-              value={handbury}
-              onChange={(e) => setHandbury(e.target.value)}
-            />
-          </div>
+        {jobType === 'TelCom Handbury' && (
+          <>
+            <div className="input-group">
+              <label htmlFor="handbury">Handbury:</label>
+              <input
+                type="text"
+                id="handbury"
+                value={handbury}
+                onChange={(e) => setHandbury(e.target.value)}
+              />
+            </div>
+            <div className="input-group">
+              <label htmlFor="bore">Bore Footage:</label>
+              <input
+                type="text"
+                id="bore"
+                value={bore}
+                onChange={(e) => setBore(e.target.value)}
+              />
+            </div>
+          </>
         )}
         {jobType === 'Frontier' && (
           <div className="input-group">
@@ -263,8 +288,16 @@ export default function PaycheckForm() {
             Submit
           </button>
         </div>
+        <div className="input-group">
+          <a
+            href={`mailto:whasup42@hotmail.com?subject=Bug Report or Question&body=Please describe your issue or question here.`}
+            className="btn btn-warning"
+          >
+            Report a Bug
+          </a>
+        </div>
       </form>
-      <button type="button" onClick={exportToPDF} className="btn btn-secondary">
+      <button type="button" onClick={exportToPDF} className="btn btn-success">
         Export to PDF
       </button>
       <table id="paycheck-table" className="table table-striped">
