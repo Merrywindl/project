@@ -7,7 +7,7 @@ export function HourlyWageCalculator() {
   const [regularHours, setTotalHours] = useState('');
   const [overtimeHours, setOvertimeHours] = useState('');
   const [footagePay, setFootagePay] = useState('');
-  const [results, setResults] = useState<{ regularPay: string; overtimePay: string } | null>(null);
+  const [results, setResults] = useState<{ regularPay: string; overtimePay: string; grosspay: string } | null>(null);
 
   const isValidNumber = (value: string) => !isNaN(parseFloat(value)) && isFinite(parseFloat(value));
 
@@ -28,15 +28,24 @@ export function HourlyWageCalculator() {
 
     const totalHoursWorked = regularHoursWorked + overtime;
     const overtimePay = calculateOvertimePay(hourlyRate, overtime);
-    const regularPay = regularHoursWorked * hourlyRate + overtimePay + productionPay;
-    const hourlyProductionPay = productionPay / totalHoursWorked;
-    const trueRegularHourlyPay = (regularPay + (hourlyProductionPay * regularHoursWorked)) / regularHoursWorked;
-    const trueOvertimeHourlyPay = (overtimePay + (hourlyProductionPay * overtime)) / overtime;
+    const regularPay = regularHoursWorked * hourlyRate;
+    const grosspay = regularPay + overtimePay + productionPay;
+
+    // Adjust True Regular Hourly Pay based on Production Pay
+    const trueRegularHourlyPay = productionPay > 0
+      ? (regularPay + (productionPay * (regularHoursWorked / totalHoursWorked))) / regularHoursWorked
+      : hourlyRate;
+
+    // True Overtime Hourly Pay includes only overtime pay and proportional production pay
+    const trueOvertimeHourlyPay = overtime > 0
+      ? (overtimePay + (productionPay * (overtime / totalHoursWorked))) / overtime
+      : 0;
 
     // Set the results in state
     setResults({
       regularPay: trueRegularHourlyPay.toFixed(2),
       overtimePay: trueOvertimeHourlyPay.toFixed(2),
+      grosspay: grosspay.toFixed(2),
     });
   };
 
@@ -67,6 +76,7 @@ export function HourlyWageCalculator() {
       {results && (
         <div className="results">
           <h2>Results</h2>
+          <p>Gross Pay: <strong>${results.grosspay}</strong></p>
           <p>Your True Regular Hourly Pay: <strong>${results.regularPay}</strong></p>
           <p>Your True Overtime Hourly Pay: <strong>${results.overtimePay}</strong></p>
         </div>
