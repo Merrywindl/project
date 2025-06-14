@@ -52,27 +52,41 @@ export function HourlyWageCalculator() {
   return (
     <div className="hourly-rate-calculator">
       <h1>Hourly Wage Calculator</h1>
-      <div>
-        <label htmlFor="hourlyWage">Hourly Wage:</label>
-        <input id="hourlyWage" type="text" value={hourlyWage} onChange={(e) => setHourlyWage(e.target.value)} />
-      </div>
-      <div>
-        <label htmlFor="regularHours">Total Hours:</label>
-        <input id="regularHours" type="text" value={regularHours} onChange={(e) => setTotalHours(e.target.value)} />
-      </div>
-      <div>
-        <label htmlFor="overtimeHours">Overtime Hours:</label>
-        <input id="overtimeHours" type="text" value={overtimeHours} onChange={(e) => setOvertimeHours(e.target.value)} />
-      </div>
-      <div>
-        <label htmlFor="footagePay">Footage Pay:</label>
-        <input id="footagePay" type="text" value={footagePay} onChange={(e) => setFootagePay(e.target.value)} />
-      </div>
-      <div>
-        <button className="btn btn-primary" onClick={handleCalculate}>
-          Calculate True Hourly Pay
-        </button>
-      </div>
+      <form
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+          maxWidth: '400px',
+          margin: '0 auto',
+        }}
+        onSubmit={e => {
+          e.preventDefault();
+          handleCalculate();
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <label htmlFor="hourlyWage" style={{ width: '170px' }}>Hourly Wage:</label>
+          <input id="hourlyWage" type="text" value={hourlyWage} onChange={(e) => setHourlyWage(e.target.value)} />
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <label htmlFor="regularHours" style={{ width: '170px' }}>Total Regular Hours:</label>
+          <input id="regularHours" type="text" value={regularHours} onChange={(e) => setTotalHours(e.target.value)} />
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <label htmlFor="overtimeHours" style={{ width: '170px' }}>Overtime Hours:</label>
+          <input id="overtimeHours" type="text" value={overtimeHours} onChange={(e) => setOvertimeHours(e.target.value)} />
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <label htmlFor="footagePay" style={{ width: '170px' }}>Commisions, tips, etc..:</label>
+          <input id="footagePay" type="text" value={footagePay} onChange={(e) => setFootagePay(e.target.value)} />
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <button className="btn btn-primary" type="submit">
+            Calculate True Hourly Pay
+          </button>
+        </div>
+      </form>
       {results && (
         <div className="results">
           <h2>Results</h2>

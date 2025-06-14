@@ -14,8 +14,8 @@ const App: React.FC = () => {
         <Navbar />
         <div style={{ flex: '1' }}>
           <Routes>
-            <Route path="/" element={<PaycheckForm />} />
-            <Route path="/hourly-wage-calculator" element={<HourlyWageCalculator />} />
+            <Route path="/paycheck-form" element={<PaycheckForm />} />
+            <Route path="/" element={<HourlyWageCalculator />} />
           </Routes>
         </div>
         <Footer />
